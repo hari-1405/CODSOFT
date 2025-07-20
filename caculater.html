@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Basic Calculator</title>
+    <style>
+        body {
+            background: #f4f6fa;
+            font-family: 'Segoe UI', Arial, sans-serif;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
+        }
+        .calculator {
+            background: #fff;
+            border-radius: 14px;
+            box-shadow: 0 4px 24px #0002;
+            padding: 2rem;
+            width: 320px;
+        }
+        .display {
+            width: 100%;
+            height: 50px;
+            background: #222;
+            color: #fff;
+            font-size: 2rem;
+            text-align: right;
+            border-radius: 8px;
+            margin-bottom: 1rem;
+            padding: 0.5rem 1rem;
+            box-sizing: border-box;
+            overflow-x: auto;
+        }
+        .buttons {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 0.7rem;
+        }
+        .btn {
+            padding: 1rem 0;
+            font-size: 1.2rem;
+            border: none;
+            border-radius: 8px;
+            background: #e0e0e0;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        .btn.operator {
+            background: #2979ff;
+            color: #fff;
+        }
+        .btn.equal {
+            background: #43a047;
+            color: #fff;
+            grid-column: span 2;
+        }
+        .btn.clear {
+            background: #e53935;
+            color: #fff;
+        }
+        .btn:active {
+            background: #bdbdbd;
+        }
+    </style>
+</head>
+<body>
+    <div class="calculator">
+        <div class="display" id="display">0</div>
+        <div class="buttons">
+            <button class="btn clear" id="clear">C</button>
+            <button class="btn operator" data-op="/">÷</button>
+            <button class="btn operator" data-op="*">*</button>
+            <button class="btn operator" data-op="-">-</button>
+            <button class="btn" data-num="7">7</button>
+            <button class="btn" data-num="8">8</button>
+            <button class="btn" data-num="9">9</button>
+            <button class="btn operator" data-op="+">+</button>
+            <button class="btn" data-num="4">4</button>
+            <button class="btn" data-num="5">5</button>
+            <button class="btn" data-num="6">6</button>
+            <button class="btn" data-num="1">1</button>
+            <button class="btn" data-num="2">2</button>
+            <button class="btn" data-num="3">3</button>
+            <button class="btn equal" id="equal">=</button>
+            <button class="btn" data-num="0" style="grid-column: span 2;">0</button>
+            <button class="btn" data-num=".">.</button>
+        </div>
+    </div>
+    <script>
+        const display = document.getElementById('display');
+        let current = '';
+        let operator = '';
+        let operand = '';
+        let resultShown = false;
+
+        function updateDisplay(val) {
+            display.textContent = val.length ? val : '0';
+        }
+
+        document.querySelectorAll('.btn[data-num]').forEach(btn => {
+            btn.addEventListener('click', function() {
+                if (resultShown) {
+                    current = '';
+                    resultShown = false;
+                }
+                if (this.dataset.num === '.' && current.includes('.')) return;
+                current += this.dataset.num;
+                updateDisplay(current);
+            });
+        });
+
+        document.querySelectorAll('.btn.operator').forEach(btn => {
+            btn.addEventListener('click', function() {
+                if (current === '' && operand === '') return;
+                if (operand !== '' && current !== '') {
+                    operand = calculate(operand, current, operator);
+                    updateDisplay(operand);
+                    current = '';
+                } else if (current !== '') {
+                    operand = current;
+                    current = '';
+                }
+                operator = this.dataset.op;
+                resultShown = false;
+            });
+        });
+
+        document.getElementById('equal').addEventListener('click', function() {
+            if (operand !== '' && current !== '' && operator !== '') {
+                operand = calculate(operand, current, operator);
+                updateDisplay(operand);
+                current = '';
+                operator = '';
+                resultShown = true;
+            }
+        });
+
+        document.getElementById('clear').addEventListener('click', function() {
+            current = '';
+            operator = '';
+            operand = '';
+            updateDisplay('0');
+        });
+
+        function calculate(a, b, op) {
+            let x = parseFloat(a), y = parseFloat(b);
+            if (op === '+') return (x + y).toString();
+            if (op === '-') return (x - y).toString();
+            if (op === '*') return (x * y).toString();
+            if (op === '/') return y !== 0 ? (x / y).toString() : 'Error';
+            return b;
+        }
+    </script>
+</body>
+</html>
